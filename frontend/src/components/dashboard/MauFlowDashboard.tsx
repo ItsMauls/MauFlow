@@ -220,15 +220,11 @@ export const MauFlowDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Neutral Animated Background */}
-      <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-slate-900 to-zinc-900">
-        <div className="absolute inset-0 bg-gradient-to-tr from-gray-800/30 via-transparent to-slate-800/30" />
-        {/* Floating Glass Shapes */}
-        <div className="absolute top-20 left-10 w-32 h-32 bg-white/3 rounded-full blur-xl animate-pulse" />
-        <div className="absolute top-40 right-20 w-24 h-24 bg-white/5 rounded-full blur-lg animate-bounce" style={{ animationDuration: '3s' }} />
-        <div className="absolute bottom-32 left-1/4 w-40 h-40 bg-white/2 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute bottom-20 right-1/3 w-28 h-28 bg-white/4 rounded-full blur-xl animate-bounce" style={{ animationDuration: '4s', animationDelay: '2s' }} />
-      </div>
+      {/* Floating Glass Shapes */}
+      <div className="absolute top-20 left-10 w-32 h-32 bg-white/3 rounded-full blur-xl animate-pulse" />
+      <div className="absolute top-40 right-20 w-24 h-24 bg-white/5 rounded-full blur-lg animate-bounce" style={{ animationDuration: '3s' }} />
+      <div className="absolute bottom-32 left-1/4 w-40 h-40 bg-white/2 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }} />
+      <div className="absolute bottom-20 right-1/3 w-28 h-28 bg-white/4 rounded-full blur-xl animate-bounce" style={{ animationDuration: '4s', animationDelay: '2s' }} />
 
       <GlassContainer>
         <div className="relative z-10 p-4 md:p-6 lg:p-8 pb-32">
@@ -241,7 +237,7 @@ export const MauFlowDashboard: React.FC = () => {
               <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
                 <div className="text-center md:text-left">
                   <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white via-gray-100 to-slate-100 bg-clip-text text-transparent mb-2">
-                    ✨ MauFlow Dashboard
+                    Dashboard
                   </h1>
                   <p className="text-white/80 text-lg font-light">
                     Smart task management for freelancers and small teams
@@ -611,7 +607,7 @@ export const MauFlowDashboard: React.FC = () => {
 
         {/* Enhanced Sticky Bottom Bar for Desktop */}
         <div className="hidden md:block">
-          <StickyBottomBar>
+          {/* <StickyBottomBar>
             <div className="flex items-center gap-4">
               <GlassButton
                 onClick={() => setShowAddForm(true)}
@@ -637,7 +633,7 @@ export const MauFlowDashboard: React.FC = () => {
                 {sortBy === 'priority' ? '📅' : '🎯'}
               </GlassButton>
             </div>
-          </StickyBottomBar>
+          </StickyBottomBar> */}
         </div>
 
         {/* Enhanced Onboarding Tour */}
