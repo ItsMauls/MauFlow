@@ -103,14 +103,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Sidebar */}
       <div className={cn(
         'fixed left-4 top-4 bottom-4 w-80 z-50 transform transition-transform duration-300 ease-in-out',
-        'border border-white/20 bg-gradient-to-br from-white/15 via-white/8 to-white/5 backdrop-blur-xl shadow-2xl shadow-black/20',
+        'border border-blue-400/20 bg-gradient-to-br from-blue-500/15 via-purple-500/8 to-blue-500/5 backdrop-blur-xl shadow-2xl shadow-blue-500/20',
         isOpen ? 'translate-x-0' : '-translate-x-full',
         'lg:relative lg:left-0 lg:top-0 lg:bottom-0 lg:translate-x-0'
       )}>
         {/* Subtle glowing border effect */}
-        <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-white/10 via-white/5 to-white/10 blur-sm -z-10" />
+        <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-blue-400/10 via-purple-400/5 to-blue-400/10 blur-sm -z-10" />
         {/* Header */}
-        <div className="p-8 border-b border-white/10">
+        <div className="p-8 border-b border-blue-400/10">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold bg-gradient-to-r from-white via-gray-100 to-slate-100 bg-clip-text text-transparent">
               MauFlow
@@ -133,8 +133,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className={cn(
                 'w-full p-4 rounded-2xl text-left transition-all duration-300 group transform hover:scale-[1.02]',
                 activeSection === section.key
-                  ? 'bg-gradient-to-br from-white/15 to-white/5 border border-white/20 shadow-xl shadow-white/10'
-                  : 'hover:bg-gradient-to-br hover:from-white/10 hover:to-white/5 border border-white/10 hover:border-white/20'
+                  ? 'bg-gradient-to-br from-blue-500/20 to-purple-500/10 border border-blue-400/30 shadow-xl shadow-blue-500/15'
+                  : 'hover:bg-gradient-to-br hover:from-blue-500/10 hover:to-purple-500/5 border border-blue-400/10 hover:border-blue-400/20'
               )}
             >
               <div>
@@ -153,24 +153,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
               
               <div className="space-y-4">
-                <div className="group relative rounded-2xl bg-gradient-to-br from-white/15 to-white/5 border border-white/20 p-4 hover:scale-105 hover:shadow-xl hover:shadow-white/10 transition-all duration-300 cursor-pointer">
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="group relative rounded-2xl bg-gradient-to-br from-blue-500/15 to-purple-500/5 border border-blue-400/20 p-4 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/15 transition-all duration-300 cursor-pointer">
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="relative">
                     <div className="font-medium text-white mb-1">Today's Focus</div>
                     <div className="text-white/70 text-sm">3 high priority tasks</div>
                   </div>
                 </div>
 
-                <div className="group relative rounded-2xl bg-gradient-to-br from-white/12 to-white/6 border border-white/25 p-4 hover:scale-105 hover:shadow-xl hover:shadow-white/15 transition-all duration-300 cursor-pointer">
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="group relative rounded-2xl bg-gradient-to-br from-blue-500/12 to-purple-500/6 border border-blue-400/25 p-4 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/15 transition-all duration-300 cursor-pointer">
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="relative">
                     <div className="font-medium text-white mb-1">Progress</div>
                     <div className="text-white/70 text-sm">67% tasks completed this week</div>
                   </div>
                 </div>
 
-                <div className="group relative rounded-2xl bg-gradient-to-br from-white/12 to-white/6 border border-white/25 p-4 hover:scale-105 hover:shadow-xl hover:shadow-white/15 transition-all duration-300 cursor-pointer">
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="group relative rounded-2xl bg-gradient-to-br from-purple-500/12 to-blue-500/6 border border-purple-400/25 p-4 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/15 transition-all duration-300 cursor-pointer">
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-500/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="relative">
                     <div className="font-medium text-white mb-1">Upcoming</div>
                     <div className="text-white/70 text-sm">2 tasks due tomorrow</div>
@@ -191,7 +191,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   placeholder="Search everything..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl bg-gradient-to-r from-white/15 to-white/10 border border-white/30 text-white placeholder-white/50 backdrop-blur-sm hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all duration-200"
+                  className="w-full px-4 py-3 rounded-2xl bg-gradient-to-r from-blue-500/15 to-purple-500/10 border border-blue-400/30 text-white placeholder-white/50 backdrop-blur-sm hover:from-blue-500/20 hover:to-purple-500/15 focus:outline-none focus:ring-2 focus:ring-blue-400/50 transition-all duration-200"
                 />
               </div>
 
@@ -199,11 +199,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <div className="space-y-2">
                   <h4 className="text-sm font-medium text-white/80">Search Results</h4>
                   <div className="space-y-2">
-                    <div className="p-3 rounded-xl bg-gradient-to-r from-white/15 to-white/10 border border-white/20 hover:bg-white/20 transition-all duration-200 cursor-pointer">
+                    <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500/15 to-purple-500/10 border border-blue-400/20 hover:from-blue-500/20 hover:to-purple-500/15 transition-all duration-200 cursor-pointer">
                       <div className="font-medium text-white text-sm">Complete project proposal</div>
                       <div className="text-xs text-white/60">Task • High Priority</div>
                     </div>
-                    <div className="p-3 rounded-xl bg-gradient-to-r from-white/15 to-white/10 border border-white/20 hover:bg-white/20 transition-all duration-200 cursor-pointer">
+                    <div className="p-3 rounded-xl bg-gradient-to-r from-purple-500/15 to-blue-500/10 border border-purple-400/20 hover:from-purple-500/20 hover:to-blue-500/15 transition-all duration-200 cursor-pointer">
                       <div className="font-medium text-white text-sm">Website Redesign Project</div>
                       <div className="text-xs text-white/60">Project • 8 tasks</div>
                     </div>
@@ -237,9 +237,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {projects.map((project) => (
                   <div
                     key={project.id}
-                    className="group relative rounded-2xl bg-gradient-to-br from-white/15 to-white/5 border border-white/20 p-4 hover:scale-105 hover:shadow-xl hover:shadow-white/10 transition-all duration-300 cursor-pointer"
+                    className="group relative rounded-2xl bg-gradient-to-br from-blue-500/15 to-purple-500/5 border border-blue-400/20 p-4 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/15 transition-all duration-300 cursor-pointer"
                   >
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <div className="relative">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
@@ -248,7 +248,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           </h4>
                           <p className="text-sm text-white/60 font-mono">{project.name}</p>
                         </div>
-                        <span className="text-xs bg-white/20 px-2 py-1 rounded-full text-white/80">
+                        <span className="text-xs bg-gradient-to-r from-blue-500/30 to-purple-500/30 px-2 py-1 rounded-full text-white/80 border border-blue-400/20">
                           {project.taskCount} tasks
                         </span>
                       </div>
@@ -280,9 +280,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {showCreateProject && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-60 flex items-center justify-center p-4 animate-in fade-in duration-300">
             <div className="max-w-md w-full transform animate-in zoom-in-95 duration-300">
-              <div className="relative rounded-3xl border border-white/30 bg-gradient-to-br from-white/25 via-white/15 to-white/10 backdrop-blur-2xl shadow-2xl shadow-black/20 p-8">
+              <div className="relative rounded-3xl border border-blue-400/30 bg-gradient-to-br from-blue-500/25 via-purple-500/15 to-blue-500/10 backdrop-blur-2xl shadow-2xl shadow-blue-500/20 p-8">
                 {/* Subtle glowing border effect */}
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-white/10 via-white/5 to-white/10 blur-sm -z-10" />
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-blue-400/10 via-purple-400/5 to-blue-400/10 blur-sm -z-10" />
                 <h3 className="text-2xl font-bold text-white mb-6">
                   Create New Project
                 </h3>
@@ -297,7 +297,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       placeholder="e.g., website-redesign"
                       value={newProjectName}
                       onChange={(e) => setNewProjectName(e.target.value)}
-                      className="w-full px-4 py-3 rounded-2xl bg-white/10 border border-white/30 text-white placeholder-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/50 transition-all duration-200"
+                      className="w-full px-4 py-3 rounded-2xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-400/30 text-white placeholder-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 transition-all duration-200"
                       autoFocus
                     />
                   </div>
@@ -311,7 +311,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       placeholder="e.g., Website Redesign Project"
                       value={newProjectTitle}
                       onChange={(e) => setNewProjectTitle(e.target.value)}
-                      className="w-full px-4 py-3 rounded-2xl bg-white/10 border border-white/30 text-white placeholder-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/50 transition-all duration-200"
+                      className="w-full px-4 py-3 rounded-2xl bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-400/30 text-white placeholder-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-200"
                     />
                   </div>
                 </div>
