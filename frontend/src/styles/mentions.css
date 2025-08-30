@@ -1,0 +1,132 @@
+/* Mention Styles for Comments */
+
+.comment-content .mention {
+  @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium;
+  background-color: var(--mention-bg, rgba(59, 130, 246, 0.2));
+  border: 1px solid var(--mention-border, rgba(59, 130, 246, 0.4));
+  color: var(--mention-text, rgb(147, 197, 253));
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.comment-content .mention:hover {
+  background-color: rgba(59, 130, 246, 0.3);
+  border-color: rgba(59, 130, 246, 0.6);
+  color: rgb(191, 219, 254);
+  transform: scale(1.05);
+}
+
+.comment-content .mention:active {
+  transform: scale(0.95);
+}
+
+/* Mention dropdown styles */
+.mention-dropdown {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.mention-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.mention-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mention-dropdown::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.mention-dropdown::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Animation for mention dropdown */
+.mention-dropdown-enter {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+}
+
+.mention-dropdown-enter-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: all 0.2s ease;
+}
+
+.mention-dropdown-exit {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.mention-dropdown-exit-active {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+  transition: all 0.2s ease;
+}
+
+/* Mention input highlighting */
+.mention-input-highlight {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* Mention badge in comment header */
+.mention-badge {
+  @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs;
+  background-color: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: rgb(147, 197, 253);
+}
+
+/* Responsive mention styles */
+@media (max-width: 640px) {
+  .comment-content .mention {
+    @apply text-xs px-1.5 py-0.5;
+  }
+  
+  .mention-dropdown {
+    max-width: calc(100vw - 2rem);
+    left: 1rem !important;
+    right: 1rem !important;
+    width: auto !important;
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .comment-content .mention {
+    background-color: rgba(59, 130, 246, 0.25);
+    border-color: rgba(59, 130, 246, 0.5);
+    color: rgb(191, 219, 254);
+  }
+  
+  .comment-content .mention:hover {
+    background-color: rgba(59, 130, 246, 0.35);
+    border-color: rgba(59, 130, 246, 0.7);
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .comment-content .mention {
+    background-color: rgba(59, 130, 246, 0.4);
+    border-color: rgba(59, 130, 246, 0.8);
+    color: white;
+    font-weight: 600;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .comment-content .mention,
+  .mention-dropdown-enter-active,
+  .mention-dropdown-exit-active {
+    transition: none;
+  }
+  
+  .comment-content .mention:hover {
+    transform: none;
+  }
+}
