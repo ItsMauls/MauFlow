@@ -2,10 +2,10 @@ package task
 
 import "github.com/gofiber/fiber/v2"
 
-func RegisterRoutes(r *fiber.Route, svc *task.Service) {
-	h := fiber.Handler{Svc: svc}
-	r.Get("/", h.List)
-	r.Post("/", h.Create)
-	r.Put("/:id", h.Update)
-	r.Delete("/:id", h.Delete)
+// Service handles task related operations.
+type Service struct{}
+
+// RegisterRoutes wires task routes to the provided router.
+func RegisterRoutes(r fiber.Router, svc *Service) {
+	// TODO: implement task handlers
 }
