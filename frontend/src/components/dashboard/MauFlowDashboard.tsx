@@ -1,11 +1,14 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { GlassContainer, GlassCard, GlassButton, ResponsiveGrid, StickyBottomBar } from '../ui';
 import { TaskCard, type Task } from '../tasks/TaskCard';
+import { FileUploadArea } from '../tasks/FileUploadArea';
 import { TaskListItem } from '../tasks/TaskListItem';
+import { CalendarView } from '../calendar/CalendarView';
 import { AIPrioritizeButton } from '../ai/AIPrioritizeButton';
 import { OnboardingTour, useOnboarding } from '../onboarding/OnboardingTour';
+import { tasksToFilteredCalendarEvents, CalendarEvent, CalendarViewMode } from '@/lib/calendar';
 // import { useTasks, useCreateTask, useUpdateTask, useDeleteTask } from '@/hooks/useApi';
 
 interface TaskFormData {
@@ -13,18 +16,22 @@ interface TaskFormData {
   description: string;
   priority: 'high' | 'medium' | 'low';
   dueDate: string;
+  attachments: File[];
 }
 
 export const MauFlowDashboard: React.FC = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [filterStatus, setFilterStatus] = useState<'all' | 'todo' | 'doing' | 'done'>('all');
   const [sortBy, setSortBy] = useState<'created' | 'priority' | 'dueDate' | 'ai'>('created');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'calendar'>('grid');
+  const [calendarViewMode, setCalendarViewMode] = useState<CalendarViewMode>('month');
+  const [selectedDate, setSelectedDate] = useState<string>();
   const [formData, setFormData] = useState<TaskFormData>({
     title: '',
     description: '',
     priority: 'medium',
-    dueDate: ''
+    dueDate: '',
+    attachments: []
   });
 
   // Hardcoded mock tasks
@@ -97,6 +104,29 @@ export const MauFlowDashboard: React.FC = () => {
   // Onboarding
   const { showOnboarding, completeOnboarding, skipOnboarding, restartOnboarding } = useOnboarding();
 
+  // Load view preferences from localStorage
+  useEffect(() => {
+    const savedViewMode = localStorage.getItem('mauflow-view-mode') as 'grid' | 'list' | 'calendar';
+    const savedCalendarViewMode = localStorage.getItem('mauflow-calendar-view-mode') as CalendarViewMode;
+    
+    if (savedViewMode && ['grid', 'list', 'calendar'].includes(savedViewMode)) {
+      setViewMode(savedViewMode);
+    }
+    
+    if (savedCalendarViewMode && ['month', 'week', 'day'].includes(savedCalendarViewMode)) {
+      setCalendarViewMode(savedCalendarViewMode);
+    }
+  }, []);
+
+  // Save view preferences to localStorage
+  useEffect(() => {
+    localStorage.setItem('mauflow-view-mode', viewMode);
+  }, [viewMode]);
+
+  useEffect(() => {
+    localStorage.setItem('mauflow-calendar-view-mode', calendarViewMode);
+  }, [calendarViewMode]);
+
   // Filter and sort tasks
   const filteredAndSortedTasks = useMemo(() => {
     let filtered = tasks;
@@ -125,6 +155,11 @@ export const MauFlowDashboard: React.FC = () => {
     });
   }, [tasks, filterStatus, sortBy]);
 
+  // Convert tasks to calendar events with filtering
+  const calendarEvents = useMemo(() => {
+    return tasksToFilteredCalendarEvents(tasks, filterStatus);
+  }, [tasks, filterStatus]);
+
   // Task statistics
   const taskStats = useMemo(() => {
     const total = tasks.length;
@@ -150,12 +185,29 @@ export const MauFlowDashboard: React.FC = () => {
       priority: formData.priority,
       dueDate: formData.dueDate || undefined,
       createdAt: new Date().toISOString(),
-      aiScore: Math.floor(Math.random() * 100)
+      aiScore: Math.floor(Math.random() * 100),
+      // Note: attachments will be handled by the TaskCard's attachment system after creation
+      attachments: []
     };
 
     setTasks(prev => [newTask, ...prev]);
-    setFormData({ title: '', description: '', priority: 'medium', dueDate: '' });
+    setFormData({ title: '', description: '', priority: 'medium', dueDate: '', attachments: [] });
     setShowAddForm(false);
+  };
+
+  const handleFileSelect = (files: FileList) => {
+    const newFiles = Array.from(files);
+    setFormData(prev => ({
+      ...prev,
+      attachments: [...prev.attachments, ...newFiles]
+    }));
+  };
+
+  const removeAttachment = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      attachments: prev.attachments.filter((_, i) => i !== index)
+    }));
   };
 
   const handleUpdateTask = (taskId: string, updates: Partial<Task>) => {
@@ -198,6 +250,23 @@ export const MauFlowDashboard: React.FC = () => {
         });
       }
     });
+  };
+
+  // Calendar event handlers
+  const handleDateSelect = (date: string) => {
+    setSelectedDate(date);
+  };
+
+  const handleEventClick = (event: CalendarEvent) => {
+    if (event.originalTask) {
+      // For now, we could show task details or navigate to task
+      // This could be enhanced to show a task detail modal
+      console.log('Event clicked:', event);
+    }
+  };
+
+  const handleCalendarViewModeChange = (mode: CalendarViewMode) => {
+    setCalendarViewMode(mode);
   };
 
   if (error) {
@@ -250,7 +319,7 @@ export const MauFlowDashboard: React.FC = () => {
                     onClick={restartOnboarding}
                     className="rounded-full hover:shadow-lg hover:shadow-white/10 transition-all duration-300"
                   >
-                    💡 Help
+                    Help
                   </GlassButton>
                   <AIPrioritizeButton
                     onPrioritizeComplete={handleAIPrioritize}
@@ -266,7 +335,7 @@ export const MauFlowDashboard: React.FC = () => {
                   <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="relative">
                     <div className="text-3xl font-bold text-white mb-1">{taskStats.total}</div>
-                    <div className="text-white/70 text-sm font-medium">📋 Total Tasks</div>
+                    <div className="text-white/70 text-sm font-medium">Total Tasks</div>
                   </div>
                 </div>
                 
@@ -274,7 +343,7 @@ export const MauFlowDashboard: React.FC = () => {
                   <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="relative">
                     <div className="text-3xl font-bold text-white mb-1">{taskStats.completed}</div>
-                    <div className="text-white/70 text-sm font-medium">✅ Completed</div>
+                    <div className="text-white/70 text-sm font-medium">Completed</div>
                   </div>
                 </div>
                 
@@ -282,7 +351,7 @@ export const MauFlowDashboard: React.FC = () => {
                   <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="relative">
                     <div className="text-3xl font-bold text-white mb-1">{taskStats.inProgress}</div>
-                    <div className="text-white/70 text-sm font-medium">⚡ In Progress</div>
+                    <div className="text-white/70 text-sm font-medium">In Progress</div>
                   </div>
                 </div>
                 
@@ -290,7 +359,7 @@ export const MauFlowDashboard: React.FC = () => {
                   <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="relative">
                     <div className="text-3xl font-bold text-white mb-1">{taskStats.overdue}</div>
-                    <div className="text-white/70 text-sm font-medium">⏰ Overdue</div>
+                    <div className="text-white/70 text-sm font-medium">Overdue</div>
                   </div>
                 </div>
               </div>
@@ -304,14 +373,14 @@ export const MauFlowDashboard: React.FC = () => {
                 {/* Status Filter Pills */}
                 <div className="flex flex-wrap gap-3 items-center">
                   <span className="text-white/90 text-sm font-semibold flex items-center gap-2">
-                    🎯 Filter:
+                    Filter:
                   </span>
                   <div className="flex gap-2">
                     {[
-                      { key: 'all', label: 'All', emoji: '📋', gradient: 'from-gray-400 to-gray-500' },
-                      { key: 'todo', label: 'To Do', emoji: '📝', gradient: 'from-slate-400 to-slate-500' },
-                      { key: 'doing', label: 'Doing', emoji: '⚡', gradient: 'from-zinc-400 to-zinc-500' },
-                      { key: 'done', label: 'Done', emoji: '✅', gradient: 'from-gray-300 to-gray-400' }
+                      { key: 'all', label: 'All', gradient: 'from-gray-400 to-gray-500' },
+                      { key: 'todo', label: 'To Do', gradient: 'from-slate-400 to-slate-500' },
+                      { key: 'doing', label: 'Doing', gradient: 'from-zinc-400 to-zinc-500' },
+                      { key: 'done', label: 'Done', gradient: 'from-gray-300 to-gray-400' }
                     ].map(status => (
                       <button
                         key={status.key}
@@ -323,7 +392,7 @@ export const MauFlowDashboard: React.FC = () => {
                         }`}
                       >
                         <span className="relative z-10 flex items-center gap-2">
-                          {status.emoji} {status.label}
+                          {status.label}
                         </span>
                         {filterStatus === status.key && (
                           <div className="absolute inset-0 rounded-full bg-gradient-to-r from-white/20 to-transparent" />
@@ -337,7 +406,7 @@ export const MauFlowDashboard: React.FC = () => {
                 <div className="flex gap-6 items-center">
                   <div className="flex gap-3 items-center">
                     <span className="text-white/90 text-sm font-semibold flex items-center gap-2">
-                      🔄 Sort:
+                      Sort:
                     </span>
                     <div className="relative">
                       <select
@@ -345,10 +414,10 @@ export const MauFlowDashboard: React.FC = () => {
                         onChange={(e) => setSortBy(e.target.value as any)}
                         className="appearance-none bg-gradient-to-r from-white/15 to-white/10 border border-white/30 rounded-xl px-4 py-2 pr-10 text-white text-sm font-medium backdrop-blur-sm hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all duration-200"
                       >
-                        <option value="created" className="bg-gray-800">📅 Created Date</option>
-                        <option value="priority" className="bg-gray-800">🎯 Priority</option>
-                        <option value="dueDate" className="bg-gray-800">⏰ Due Date</option>
-                        <option value="ai" className="bg-gray-800">🤖 AI Score</option>
+                        <option value="created" className="bg-gray-800">Created Date</option>
+                        <option value="priority" className="bg-gray-800">Priority</option>
+                        <option value="dueDate" className="bg-gray-800">Due Date</option>
+                        <option value="ai" className="bg-gray-800">AI Score</option>
                       </select>
                       <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                         <svg className="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -361,12 +430,13 @@ export const MauFlowDashboard: React.FC = () => {
                   {/* View Mode Toggle */}
                   <div className="flex gap-3 items-center">
                     <span className="text-white/90 text-sm font-semibold flex items-center gap-2">
-                      👁️ View:
+                      View:
                     </span>
                     <div className="flex gap-1 p-1 bg-white/10 rounded-xl border border-white/20">
                       {[
-                        { key: 'grid', label: 'Grid', icon: '⊞' },
-                        { key: 'list', label: 'List', icon: '☰' }
+                        { key: 'grid', label: 'Grid' },
+                        { key: 'list', label: 'List' },
+                        { key: 'calendar', label: 'Calendar' }
                       ].map(view => (
                         <button
                           key={view.key}
@@ -378,7 +448,7 @@ export const MauFlowDashboard: React.FC = () => {
                           }`}
                         >
                           <span className="flex items-center gap-2">
-                            {view.icon} <span className="hidden sm:inline">{view.label}</span>
+                            <span className="hidden sm:inline">{view.label}</span>
                           </span>
                         </button>
                       ))}
@@ -410,17 +480,15 @@ export const MauFlowDashboard: React.FC = () => {
                   {/* Animated empty state illustration */}
                   <div className="mb-6 relative">
                     <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-blue-400/20 to-purple-400/20 flex items-center justify-center animate-pulse">
-                      <span className="text-4xl">
-                        {tasks.length === 0 ? '📝' : '🔍'}
-                      </span>
+                      <div className="w-12 h-12 bg-white/20 rounded-full"></div>
                     </div>
                     <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center animate-bounce">
-                      <span className="text-lg">✨</span>
+                      <div className="w-4 h-4 bg-white/30 rounded-full"></div>
                     </div>
                   </div>
                   
                   <h3 className="text-2xl font-bold text-white mb-3">
-                    {tasks.length === 0 ? '👋 Ready to get started?' : '🤔 No tasks match your filter'}
+                    {tasks.length === 0 ? 'Ready to get started?' : 'No tasks match your filter'}
                   </h3>
                   <p className="text-white/80 mb-6 leading-relaxed">
                     {tasks.length === 0 
@@ -433,12 +501,32 @@ export const MauFlowDashboard: React.FC = () => {
                     className="rounded-full px-8 py-3"
                   >
                     <span className="flex items-center gap-2">
-                      ➕ {tasks.length === 0 ? 'Create Your First Task' : 'Add New Task'}
+                      {tasks.length === 0 ? 'Create Your First Task' : 'Add New Task'}
                     </span>
                   </GlassButton>
                 </div>
               </div>
             </div>
+          ) : viewMode === 'calendar' ? (
+            <CalendarView
+              events={calendarEvents}
+              selectedDate={selectedDate}
+              onDateSelect={handleDateSelect}
+              onEventClick={handleEventClick}
+              onTaskDetailView={(taskId) => {
+                // Navigate to task detail view - for now we'll focus on the task
+                const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+                if (taskElement) {
+                  taskElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  taskElement.classList.add('ring-4', 'ring-white/50', 'ring-offset-2');
+                  setTimeout(() => {
+                    taskElement.classList.remove('ring-4', 'ring-white/50', 'ring-offset-2');
+                  }, 2000);
+                }
+              }}
+              viewMode={calendarViewMode}
+              onViewModeChange={handleCalendarViewModeChange}
+            />
           ) : viewMode === 'grid' ? (
             <ResponsiveGrid columns={{ mobile: 1, tablet: 2, desktop: 3 }} gap="md">
               {filteredAndSortedTasks.map((task, index) => (
@@ -478,7 +566,7 @@ export const MauFlowDashboard: React.FC = () => {
                 
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400/30 to-purple-400/30 flex items-center justify-center">
-                    <span className="text-2xl">✨</span>
+                    <div className="w-6 h-6 bg-white/30 rounded-full"></div>
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-white">Create New Task</h2>
@@ -489,7 +577,7 @@ export const MauFlowDashboard: React.FC = () => {
                 <div className="space-y-5">
                   <div className="space-y-2">
                     <label className="text-white/90 text-sm font-medium flex items-center gap-2">
-                      📝 Task Title
+                      Task Title
                     </label>
                     <input
                       type="text"
@@ -503,7 +591,7 @@ export const MauFlowDashboard: React.FC = () => {
                   
                   <div className="space-y-2">
                     <label className="text-white/90 text-sm font-medium flex items-center gap-2">
-                      📄 Description <span className="text-white/50 text-xs">(optional)</span>
+                      Description <span className="text-white/50 text-xs">(optional)</span>
                     </label>
                     <textarea
                       placeholder="Add some details..."
@@ -517,7 +605,7 @@ export const MauFlowDashboard: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-white/90 text-sm font-medium flex items-center gap-2">
-                        🎯 Priority
+                        Priority
                       </label>
                       <div className="relative">
                         <select
@@ -525,9 +613,9 @@ export const MauFlowDashboard: React.FC = () => {
                           onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
                           className="w-full appearance-none px-4 py-3 rounded-2xl bg-white/10 border border-white/30 text-white backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-400/50 transition-all duration-200"
                         >
-                          <option value="low" className="bg-gray-800">🟢 Low Priority</option>
-                          <option value="medium" className="bg-gray-800">🟡 Medium Priority</option>
-                          <option value="high" className="bg-gray-800">🔴 High Priority</option>
+                          <option value="low" className="bg-gray-800">Low Priority</option>
+                          <option value="medium" className="bg-gray-800">Medium Priority</option>
+                          <option value="high" className="bg-gray-800">High Priority</option>
                         </select>
                         <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                           <svg className="w-5 h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -539,7 +627,7 @@ export const MauFlowDashboard: React.FC = () => {
                     
                     <div className="space-y-2">
                       <label className="text-white/90 text-sm font-medium flex items-center gap-2">
-                        📅 Due Date
+                        Due Date
                       </label>
                       <input
                         type="date"
@@ -548,6 +636,56 @@ export const MauFlowDashboard: React.FC = () => {
                         className="w-full px-4 py-3 rounded-2xl bg-white/10 border border-white/30 text-white backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-400/50 transition-all duration-200"
                       />
                     </div>
+                  </div>
+
+                  {/* File Attachments */}
+                  <div className="space-y-2">
+                    <label className="text-white/90 text-sm font-medium flex items-center gap-2">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                      </svg>
+                      Attachments <span className="text-white/50 text-xs">(optional)</span>
+                    </label>
+                    
+                    <FileUploadArea
+                      onFileSelect={handleFileSelect}
+                      className="border-2 border-dashed border-white/30 rounded-2xl p-4 bg-white/5 hover:border-white/50 hover:bg-white/10 transition-all duration-200"
+                    />
+
+                    {/* Selected Files Preview */}
+                    {formData.attachments.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="text-xs text-white/70 font-medium">
+                          Selected files ({formData.attachments.length}):
+                        </div>
+                        <div className="space-y-1">
+                          {formData.attachments.map((file, index) => (
+                            <div key={index} className="flex items-center justify-between bg-white/10 rounded-lg px-3 py-2 border border-white/20">
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                                <span className="text-sm">
+                                  {file.type.includes('image') ? '🖼️' : 
+                                   file.type.includes('pdf') ? '📄' : 
+                                   file.type.includes('text') ? '📝' : '📎'}
+                                </span>
+                                <span className="text-sm text-white/90 truncate">{file.name}</span>
+                                <span className="text-xs text-white/60">
+                                  ({(file.size / 1024).toFixed(1)} KB)
+                                </span>
+                              </div>
+                              <button
+                                onClick={() => removeAttachment(index)}
+                                className="text-red-400 hover:text-red-300 transition-colors p-1"
+                                title="Remove file"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 
@@ -559,7 +697,7 @@ export const MauFlowDashboard: React.FC = () => {
                     className="flex-1 rounded-2xl py-4 bg-gradient-to-r from-blue-500/30 to-purple-500/30 hover:from-blue-500/40 hover:to-purple-500/40 border-blue-400/50 shadow-lg shadow-blue-500/25"
                   >
                     <span className="flex items-center justify-center gap-2">
-                      ✨ Create Task
+                      Create Task
                     </span>
                   </GlassButton>
                   <GlassButton
@@ -630,7 +768,7 @@ export const MauFlowDashboard: React.FC = () => {
                 onClick={() => setSortBy(sortBy === 'priority' ? 'created' : 'priority')}
                 className="rounded-full hover:scale-105 transition-transform duration-200"
               >
-                {sortBy === 'priority' ? '📅' : '🎯'}
+                Sort
               </GlassButton>
             </div>
           </StickyBottomBar> */}
@@ -644,21 +782,21 @@ export const MauFlowDashboard: React.FC = () => {
           steps={[
             {
               id: 'welcome',
-              title: '👋 Welcome to MauFlow!',
-              description: 'Your smart task manager for freelancers and small teams. Ready for a quick tour to get you started? Let\'s make productivity fun! ✨',
+              title: 'Welcome to MauFlow!',
+              description: 'Your smart task manager for freelancers and small teams. Ready for a quick tour to get you started? Let\'s make productivity fun!',
               position: 'center'
             },
             {
               id: 'dashboard',
-              title: '🎯 Your Command Center',
-              description: 'This beautiful dashboard shows your task statistics with live updates. Watch those numbers grow as you complete tasks! 📈',
+              title: 'Your Command Center',
+              description: 'This beautiful dashboard shows your task statistics with live updates. Watch those numbers grow as you complete tasks!',
               target: '.max-w-screen-xl',
               position: 'bottom'
             },
             {
               id: 'task-list',
-              title: '📋 Smart Task Cards',
-              description: 'Your tasks live here with gorgeous color-coded priorities and smooth animations. Swipe on mobile for quick actions! 🎨',
+              title: 'Smart Task Cards',
+              description: 'Your tasks live here with gorgeous color-coded priorities and smooth animations. Swipe on mobile for quick actions!',
               target: '[data-tour="task-list"]',
               position: 'top'
             },
@@ -671,15 +809,15 @@ export const MauFlowDashboard: React.FC = () => {
             },
             {
               id: 'ai-prioritize',
-              title: '🤖 AI-Powered Intelligence',
-              description: 'Let our smart AI analyze your tasks and suggest the perfect priority order. It\'s like having a productivity assistant! 🧠',
+              title: 'AI-Powered Intelligence',
+              description: 'Let our smart AI analyze your tasks and suggest the perfect priority order. It\'s like having a productivity assistant!',
               target: '[data-tour="prioritize-btn"]',
               position: 'top'
             },
             {
               id: 'complete',
-              title: '🚀 You\'re All Set!',
-              description: 'Start creating tasks and experience the smooth, beautiful interface we\'ve crafted for you. Welcome to smarter, more enjoyable task management! 🎉',
+              title: 'You\'re All Set!',
+              description: 'Start creating tasks and experience the smooth, beautiful interface we\'ve crafted for you. Welcome to smarter, more enjoyable task management!',
               position: 'center'
             }
           ]}

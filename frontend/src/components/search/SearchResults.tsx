@@ -40,7 +40,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
   if (!query) {
     return (
       <div className="text-center py-12">
-        <div className="text-6xl mb-4">🔍</div>
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/20"></div>
         <h3 className="text-xl font-semibold text-white mb-2">Search Everything</h3>
         <p className="text-white/60">Find tasks, projects, and more across your workspace</p>
       </div>
@@ -50,8 +50,8 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
   if (!hasResults) {
     return (
       <div className="text-center py-12">
-        <div className="text-6xl mb-4">🤔</div>
-        <h3 className="text-xl font-semibold text-white mb-2">No results found</h3>
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/20"></div>
+        <h3 className="text-xl font-semibent text-white mb-2">No results found</h3>
         <p className="text-white/60">Try adjusting your search terms</p>
       </div>
     );
@@ -63,7 +63,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
       {filteredTasks.length > 0 && (
         <div>
           <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            📝 Tasks ({filteredTasks.length})
+            Tasks ({filteredTasks.length})
           </h3>
           <div className="space-y-2">
             {filteredTasks.map((task) => (
@@ -98,10 +98,10 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
                 )}
                 <div className="flex items-center gap-4 text-xs text-white/50">
                   {task.dueDate && (
-                    <span>📅 Due {new Date(task.dueDate).toLocaleDateString()}</span>
+                    <span>Due {new Date(task.dueDate).toLocaleDateString()}</span>
                   )}
                   {task.aiScore && (
-                    <span>🤖 AI Score: {task.aiScore}</span>
+                    <span>AI Score: {task.aiScore}</span>
                   )}
                 </div>
               </div>
@@ -114,7 +114,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
       {filteredProjects.length > 0 && (
         <div>
           <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            📁 Projects ({filteredProjects.length})
+            Projects ({filteredProjects.length})
           </h3>
           <div className="space-y-2">
             {filteredProjects.map((project) => (

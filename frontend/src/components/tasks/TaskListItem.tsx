@@ -18,19 +18,16 @@ const statusConfig = {
   todo: {
     label: 'To Do',
     color: 'bg-gradient-to-r from-slate-400/20 to-gray-400/20 text-slate-100 border-slate-400/30',
-    icon: '📝',
     dot: 'bg-slate-400'
   },
   doing: {
     label: 'In Progress',
     color: 'bg-gradient-to-r from-zinc-400/20 to-slate-400/20 text-zinc-100 border-zinc-400/30',
-    icon: '⚡',
     dot: 'bg-zinc-400'
   },
   done: {
     label: 'Completed',
     color: 'bg-gradient-to-r from-gray-300/20 to-slate-300/20 text-gray-100 border-gray-300/30',
-    icon: '✅',
     dot: 'bg-gray-300'
   }
 };
@@ -153,7 +150,7 @@ export const TaskListItem: React.FC<TaskListItemProps> = ({
             sizeStyles.dot,
             statusConfig[task.status].dot
           )} />
-          <span className="text-lg">{statusConfig[task.status].icon}</span>
+          <div className="w-4 h-4 rounded bg-white/30"></div>
         </div>
 
         {/* Task Content */}
@@ -219,7 +216,7 @@ export const TaskListItem: React.FC<TaskListItemProps> = ({
                   'text-white/60 bg-white/10 px-2 py-1 rounded-full',
                   sizeStyles.meta
                 )}>
-                  🤖 {task.aiScore}
+                  AI {task.aiScore}
                 </div>
               )}
 
@@ -234,7 +231,7 @@ export const TaskListItem: React.FC<TaskListItemProps> = ({
                       ? 'bg-white/15 text-white/80'
                       : 'bg-white/10 text-white/70'
                 )}>
-                  <span>{isOverdue ? '⚠️' : isDueSoon ? '⏰' : '📅'}</span>
+                  <div className="w-3 h-3 rounded bg-white/40"></div>
                   {size === 'large' && (
                     <span>{new Date(task.dueDate).toLocaleDateString()}</span>
                   )}
@@ -258,7 +255,7 @@ export const TaskListItem: React.FC<TaskListItemProps> = ({
                   sizeStyles.button
                 )}
               >
-                ✅
+                ✓
               </button>
               <button
                 onClick={handleCancelEdit}
@@ -286,7 +283,7 @@ export const TaskListItem: React.FC<TaskListItemProps> = ({
                 )}
                 title="Change Status"
               >
-                {statusConfig[task.status].icon}
+                ●
               </button>
 
               {/* Edit */}
