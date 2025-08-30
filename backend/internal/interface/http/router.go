@@ -6,9 +6,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Build(app *fiber.App, deps Dependencies) {
-	api := app.Group("/api", middleware.AuthMiddleware(deps.Auth()))
+// Dependencies exposes services required by the HTTP router.
+type Dependencies interface {
+	Auth() middleware.AuthService
+}
 
-	task.RegisterRoutes(api.Group("/tasks"), deps.TaskService)
-	prioritize.RegisterRoutes(api.Group("/prioritize"), deps.PrioritizeService)
+// Build configures application routes and attaches middleware.
+func Build(app *fiber.App, deps Dependencies) {
+	app.Use(middleware.AuthMiddleware(deps.Auth()))
 }
