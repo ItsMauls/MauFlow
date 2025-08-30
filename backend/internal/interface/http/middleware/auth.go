@@ -2,6 +2,7 @@ package middleware
 
 import "github.com/gofiber/fiber/v2"
 
+
 // AuthService defines the behaviour required by the authentication middleware.
 // VerifyToken should validate the provided token and return identifiers for the
 // authenticated user and tenant. An error should be returned if the token is
@@ -18,6 +19,7 @@ func AuthMiddleware(authSvc AuthService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		token := c.Get("Authorization")
 		user, tenant, err := authSvc.VerifyToken(token)
+
 		if err != nil {
 			return fiber.ErrUnauthorized
 		}
