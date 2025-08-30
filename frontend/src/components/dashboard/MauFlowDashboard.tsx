@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { GlassContainer, GlassCard, GlassButton, ResponsiveGrid, StickyBottomBar, TaskControls } from '../ui';
+import { GlassContainer, GlassCard, GlassButton, ResponsiveGrid, StickyBottomBar, TaskControls, TaskCreationPanel, type TaskFormData as PanelTaskFormData } from '../ui';
 import { TaskCard, type Task } from '../tasks/TaskCard';
 import { FileUploadArea } from '../tasks/FileUploadArea';
 import { TaskListItem } from '../tasks/TaskListItem';
@@ -11,28 +11,16 @@ import { OnboardingTour, useOnboarding } from '../onboarding/OnboardingTour';
 import { tasksToFilteredCalendarEvents, CalendarEvent, CalendarViewMode } from '@/lib/calendar';
 // import { useTasks, useCreateTask, useUpdateTask, useDeleteTask } from '@/hooks/useApi';
 
-interface TaskFormData {
-  title: string;
-  description: string;
-  priority: 'high' | 'medium' | 'low';
-  dueDate: string;
-  attachments: File[];
-}
+// TaskFormData is now imported from TaskCreationPanel
 
 export const MauFlowDashboard: React.FC = () => {
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [showTaskPanel, setShowTaskPanel] = useState(false);
   const [filterStatus, setFilterStatus] = useState<'all' | 'todo' | 'doing' | 'done'>('all');
   const [sortBy, setSortBy] = useState<'created' | 'priority' | 'dueDate' | 'ai'>('created');
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'calendar'>('grid');
   const [calendarViewMode, setCalendarViewMode] = useState<CalendarViewMode>('month');
   const [selectedDate, setSelectedDate] = useState<string>();
-  const [formData, setFormData] = useState<TaskFormData>({
-    title: '',
-    description: '',
-    priority: 'medium',
-    dueDate: '',
-    attachments: []
-  });
+  // Form data is now managed by TaskCreationPanel
 
   // Hardcoded mock tasks
   const [tasks, setTasks] = useState<Task[]>([
@@ -174,16 +162,14 @@ export const MauFlowDashboard: React.FC = () => {
     return { total, completed, inProgress, overdue };
   }, [tasks]);
 
-  const handleCreateTask = () => {
-    if (!formData.title.trim()) return;
-
+  const handleCreateTask = (taskData: PanelTaskFormData) => {
     const newTask: Task = {
       id: Date.now().toString(),
-      title: formData.title,
-      description: formData.description || undefined,
-      status: 'todo',
-      priority: formData.priority,
-      dueDate: formData.dueDate || undefined,
+      title: taskData.title,
+      description: taskData.description || undefined,
+      status: taskData.status,
+      priority: taskData.priority,
+      dueDate: taskData.dueDate || undefined,
       createdAt: new Date().toISOString(),
       aiScore: Math.floor(Math.random() * 100),
       // Note: attachments will be handled by the TaskCard's attachment system after creation
@@ -191,24 +177,9 @@ export const MauFlowDashboard: React.FC = () => {
     };
 
     setTasks(prev => [newTask, ...prev]);
-    setFormData({ title: '', description: '', priority: 'medium', dueDate: '', attachments: [] });
-    setShowAddForm(false);
   };
 
-  const handleFileSelect = (files: FileList) => {
-    const newFiles = Array.from(files);
-    setFormData(prev => ({
-      ...prev,
-      attachments: [...prev.attachments, ...newFiles]
-    }));
-  };
-
-  const removeAttachment = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      attachments: prev.attachments.filter((_, i) => i !== index)
-    }));
-  };
+  // File handling is now managed by TaskCreationPanel
 
   const handleUpdateTask = (taskId: string, updates: Partial<Task>) => {
     setTasks(prev => prev.map(task => {
@@ -437,7 +408,7 @@ export const MauFlowDashboard: React.FC = () => {
                     }
                   </p>
                   <GlassButton 
-                    onClick={() => setShowAddForm(true)}
+                    onClick={() => setShowTaskPanel(true)}
                     className="rounded-full px-8 py-3"
                   >
                     <span className="flex items-center gap-2">
@@ -496,8 +467,15 @@ export const MauFlowDashboard: React.FC = () => {
         </div>
       </div>
 
-        {/* Enhanced Add Task Form Modal */}
-        {showAddForm && (
+        {/* Task Creation Panel */}
+        <TaskCreationPanel
+          isOpen={showTaskPanel}
+          onClose={() => setShowTaskPanel(false)}
+          onSave={handleCreateTask}
+        />
+
+        {/* Old modal content - to be removed */}
+        {false && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
             <div className="max-w-lg w-full transform animate-in zoom-in-95 duration-300">
               <div className="relative rounded-3xl border border-white/30 bg-gradient-to-br from-white/25 via-white/15 to-white/10 backdrop-blur-2xl shadow-2xl shadow-purple-500/20 p-8">
@@ -658,7 +636,7 @@ export const MauFlowDashboard: React.FC = () => {
           <div className="relative">
             {/* Main FAB */}
             <button
-              onClick={() => setShowAddForm(true)}
+              onClick={() => setShowTaskPanel(true)}
               data-tour="add-task"
               className="group relative w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 shadow-2xl shadow-blue-500/40 hover:shadow-3xl hover:shadow-blue-500/60 transform hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center"
             >
@@ -688,7 +666,7 @@ export const MauFlowDashboard: React.FC = () => {
           {/* <StickyBottomBar>
             <div className="flex items-center gap-4">
               <GlassButton
-                onClick={() => setShowAddForm(true)}
+                onClick={() => setShowTaskPanel(true)}
                 className="rounded-full px-6 py-3 bg-gradient-to-r from-blue-500/30 to-purple-500/30 hover:from-blue-500/40 hover:to-purple-500/40 border-blue-400/50 shadow-lg shadow-blue-500/25"
               >
                 <span className="flex items-center gap-2">

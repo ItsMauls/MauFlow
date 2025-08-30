@@ -12,3 +12,4 @@ export { TaskControls, type TaskControlsProps } from './TaskControls';
 export { ProjectControls, type ProjectControlsProps } from './ProjectControls';
 export { TeamModal, type TeamModalProps, type TeamMember } from './TeamModal';
 export { ActivityModal, type ActivityModalProps, type ActivityItem } from './ActivityModal';
+export { TaskCreationPanel, type TaskCreationPanelProps, type TaskFormData } from './TaskCreationPanel';

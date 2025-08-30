@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { GlassContainer, GlassCard, GlassButton, ResponsiveGrid, ProjectControls, TeamModal, ActivityModal, type TeamMember, type ActivityItem } from '../ui';
+import { GlassContainer, GlassCard, GlassButton, ResponsiveGrid, ProjectControls, TeamModal, ActivityModal, TaskCreationPanel, type TeamMember, type ActivityItem, type TaskFormData as PanelTaskFormData } from '../ui';
 import { TaskCard, type Task } from '../tasks/TaskCard';
 import { TaskListItem } from '../tasks/TaskListItem';
 import { BreadcrumbNavigation } from './BreadcrumbNavigation';
@@ -27,6 +27,7 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ projectId }) => {
   // Collaboration state
   const [showTeamModal, setShowTeamModal] = useState(false);
   const [showActivityModal, setShowActivityModal] = useState(false);
+  const [showTaskPanel, setShowTaskPanel] = useState(false);
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
   const [showBulkDelegation, setShowBulkDelegation] = useState(false);
   const [delegationFilter, setDelegationFilter] = useState<'all' | 'delegated' | 'my_delegations' | 'assigned_to_me'>('all');
@@ -210,9 +211,13 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ projectId }) => {
     deleteTask(taskId);
   };
 
-  const handleCreateTask = (taskData: Omit<Task, 'id' | 'createdAt' | 'projectId'>) => {
+  const handleCreateTask = (taskData: PanelTaskFormData) => {
     createTask({
-      ...taskData,
+      title: taskData.title,
+      description: taskData.description,
+      status: taskData.status,
+      priority: taskData.priority,
+      dueDate: taskData.dueDate,
       projectId
     });
   };
@@ -521,6 +526,26 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ projectId }) => {
             projectId={projectId}
             activities={mockActivities}
           />
+
+          {/* Task Creation Panel */}
+          <TaskCreationPanel
+            isOpen={showTaskPanel}
+            onClose={() => setShowTaskPanel(false)}
+            onSave={handleCreateTask}
+            projectId={projectId}
+          />
+
+          {/* Floating Action Button */}
+          <div className="fixed bottom-6 right-6 z-40">
+            <button
+              onClick={() => setShowTaskPanel(true)}
+              className="group relative w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 shadow-2xl shadow-blue-500/40 hover:shadow-3xl hover:shadow-blue-500/60 transform hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center"
+            >
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </button>
+          </div>
         </GlassContainer>
       </div>
   );
