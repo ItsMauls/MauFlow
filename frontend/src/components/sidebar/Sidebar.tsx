@@ -3,6 +3,10 @@
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { GlassButton } from '../ui/GlassButton';
+
+import { ProjectsView } from '../projects/ProjectsView';
+import type { Project } from '../projects/ProjectCard';
+
 import { EditableTitleIcon } from '../icons/EditableTitleIcon';
 import { useTeamMembers } from '@/hooks/useTeamMembers';
 import { useDelegation } from '@/hooks/useDelegation';
@@ -18,6 +22,7 @@ interface Project {
   taskCount: number;
   createdAt: string;
 }
+
 
 interface SidebarProps {
   isOpen: boolean;
@@ -298,43 +303,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </svg>
                 </button>
               </div>
-
-              <div className="space-y-2">
-                {projects.map((project) => (
-                  <button
-                    key={project.id}
-                    onClick={() => window.location.href = `/projects/${project.name}`}
-                    className="w-full group rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/5 border border-blue-400/20 p-3 hover:from-blue-500/15 hover:to-purple-500/10 transition-all duration-200 text-left"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-white text-sm truncate">
-                          {project.title}
-                        </h4>
-                        <p className="text-xs text-white/60 font-mono truncate">{project.name}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-white/50">{project.taskCount}</span>
-                        <div className="w-4 h-4 rounded bg-gradient-to-br from-blue-400/30 to-purple-400/30 flex items-center justify-center">
-                          <div className="w-2 h-2 bg-white/40 rounded"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              {projects.length === 0 && (
-                <div className="text-center py-6">
-                  <p className="text-white/60 text-sm mb-3">No projects yet</p>
-                  <button
-                    onClick={() => setShowCreateProject(true)}
-                    className="text-xs text-blue-300 hover:text-blue-200 underline"
-                  >
-                    Create Your First Project
-                  </button>
-                </div>
-              )}
+              <ProjectsView
+                projects={projects}
+                onCreateProject={() => setShowCreateProject(true)}
+              />
             </div>
           )}
 
