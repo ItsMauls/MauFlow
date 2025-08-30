@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { GlassContainer, GlassCard, GlassButton, ResponsiveGrid, StickyBottomBar } from '../ui';
+import { GlassContainer, GlassCard, GlassButton, ResponsiveGrid, StickyBottomBar, TaskControls } from '../ui';
 import { TaskCard, type Task } from '../tasks/TaskCard';
 import { FileUploadArea } from '../tasks/FileUploadArea';
 import { TaskListItem } from '../tasks/TaskListItem';
@@ -297,175 +297,115 @@ export const MauFlowDashboard: React.FC = () => {
 
       <GlassContainer>
         <div className="relative z-10 p-4 md:p-6 lg:p-8 pb-32">
-          {/* Header */}
+          {/* Compact Header */}
           <div className="max-w-screen-xl mx-auto mb-8">
-            <div className="relative rounded-3xl border border-white/20 bg-gradient-to-br from-white/15 via-white/8 to-white/5 backdrop-blur-xl shadow-2xl shadow-black/20 p-8 text-center transform hover:scale-[1.01] transition-all duration-300">
+            <div className="relative rounded-2xl border border-white/20 bg-gradient-to-br from-white/15 via-white/8 to-white/5 backdrop-blur-xl shadow-xl shadow-black/10 p-4 transform hover:scale-[1.005] transition-all duration-300">
               {/* Subtle glowing border effect */}
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-white/10 via-white/5 to-white/10 blur-sm -z-10" />
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-white/10 via-white/5 to-white/10 blur-sm -z-10" />
               
-              <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
-                <div className="text-center md:text-left">
-                  <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white via-gray-100 to-slate-100 bg-clip-text text-transparent mb-2">
-                    Dashboard
-                  </h1>
-                  <p className="text-white/80 text-lg font-light">
-                    Smart task management for freelancers and small teams
-                  </p>
-                </div>
-                <div className="flex gap-3">
-                  <GlassButton
-                    variant="secondary"
-                    size="sm"
-                    onClick={restartOnboarding}
-                    className="rounded-full hover:shadow-lg hover:shadow-white/10 transition-all duration-300"
-                  >
-                    Help
-                  </GlassButton>
-                  <AIPrioritizeButton
-                    onPrioritizeComplete={handleAIPrioritize}
-                    disabled={tasks.length === 0}
-                    className="rounded-full"
-                  />
-                </div>
-              </div>
-
-              {/* Neutral Statistics */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                <div className="group relative rounded-2xl bg-gradient-to-br from-white/15 to-white/5 border border-white/20 p-4 hover:scale-105 hover:shadow-xl hover:shadow-white/10 transition-all duration-300 cursor-pointer">
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="relative">
-                    <div className="text-3xl font-bold text-white mb-1">{taskStats.total}</div>
-                    <div className="text-white/70 text-sm font-medium">Total Tasks</div>
+              <div className="space-y-6">
+                {/* Title and Description */}
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div className="text-center md:text-left">
+                    <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white via-gray-100 to-slate-100 bg-clip-text text-transparent mb-1">
+                      Dashboard
+                    </h1>
+                    <p className="text-white/70 text-sm font-light">
+                      Smart task management for freelancers and small teams
+                    </p>
                   </div>
-                </div>
-                
-                <div className="group relative rounded-2xl bg-gradient-to-br from-white/12 to-white/6 border border-white/25 p-4 hover:scale-105 hover:shadow-xl hover:shadow-white/15 transition-all duration-300 cursor-pointer">
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="relative">
-                    <div className="text-3xl font-bold text-white mb-1">{taskStats.completed}</div>
-                    <div className="text-white/70 text-sm font-medium">Completed</div>
-                  </div>
-                </div>
-                
-                <div className="group relative rounded-2xl bg-gradient-to-br from-white/12 to-white/6 border border-white/25 p-4 hover:scale-105 hover:shadow-xl hover:shadow-white/15 transition-all duration-300 cursor-pointer">
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="relative">
-                    <div className="text-3xl font-bold text-white mb-1">{taskStats.inProgress}</div>
-                    <div className="text-white/70 text-sm font-medium">In Progress</div>
-                  </div>
-                </div>
-                
-                <div className="group relative rounded-2xl bg-gradient-to-br from-white/12 to-white/6 border border-white/25 p-4 hover:scale-105 hover:shadow-xl hover:shadow-white/15 transition-all duration-300 cursor-pointer">
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="relative">
-                    <div className="text-3xl font-bold text-white mb-1">{taskStats.overdue}</div>
-                    <div className="text-white/70 text-sm font-medium">Overdue</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Simplified Filters and Controls */}
-          <div className="max-w-screen-xl mx-auto mb-8">
-            <div className="rounded-2xl border border-white/20 bg-gradient-to-r from-white/15 via-white/10 to-white/15 backdrop-blur-xl shadow-xl p-6">
-              <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
-                {/* Status Filter Pills */}
-                <div className="flex flex-wrap gap-3 items-center">
-                  <span className="text-white/90 text-sm font-semibold flex items-center gap-2">
-                    Filter:
-                  </span>
                   <div className="flex gap-2">
-                    {[
-                      { key: 'all', label: 'All', gradient: 'from-gray-400 to-gray-500' },
-                      { key: 'todo', label: 'To Do', gradient: 'from-slate-400 to-slate-500' },
-                      { key: 'doing', label: 'Doing', gradient: 'from-zinc-400 to-zinc-500' },
-                      { key: 'done', label: 'Done', gradient: 'from-gray-300 to-gray-400' }
-                    ].map(status => (
-                      <button
-                        key={status.key}
-                        onClick={() => setFilterStatus(status.key as any)}
-                        className={`group relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
-                          filterStatus === status.key
-                            ? `bg-gradient-to-r ${status.gradient} text-white shadow-lg shadow-current/25 scale-105`
-                            : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white border border-white/20'
-                        }`}
+                    {/* Information Button with Statistics */}
+                    <div className="relative group">
+                      <GlassButton
+                        variant="secondary"
+                        size="sm"
+                        className="rounded-full hover:shadow-lg hover:shadow-white/10 transition-all duration-300"
                       >
-                        <span className="relative z-10 flex items-center gap-2">
-                          {status.label}
-                        </span>
-                        {filterStatus === status.key && (
-                          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-white/20 to-transparent" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Sort Options, View Mode, and Task Count */}
-                <div className="flex gap-6 items-center">
-                  <div className="flex gap-3 items-center">
-                    <span className="text-white/90 text-sm font-semibold flex items-center gap-2">
-                      Sort:
-                    </span>
-                    <div className="relative">
-                      <select
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value as any)}
-                        className="appearance-none bg-gradient-to-r from-white/15 to-white/10 border border-white/30 rounded-xl px-4 py-2 pr-10 text-white text-sm font-medium backdrop-blur-sm hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all duration-200"
-                      >
-                        <option value="created" className="bg-gray-800">Created Date</option>
-                        <option value="priority" className="bg-gray-800">Priority</option>
-                        <option value="dueDate" className="bg-gray-800">Due Date</option>
-                        <option value="ai" className="bg-gray-800">AI Score</option>
-                      </select>
-                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                        <svg className="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
+                      </GlassButton>
+                      
+                      {/* Statistics Tooltip */}
+                      <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-50">
+                        <div className="bg-gradient-to-br from-white/20 via-white/15 to-white/10 backdrop-blur-xl border border-white/30 rounded-xl p-4 shadow-2xl min-w-[280px]">
+                          <h3 className="text-white font-semibold mb-3 text-sm">Task Statistics</h3>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="text-center">
+                              <div className="text-xl font-bold text-white">{taskStats.total}</div>
+                              <div className="text-white/70 text-xs">Total Tasks</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-xl font-bold text-white">{taskStats.completed}</div>
+                              <div className="text-white/70 text-xs">Completed</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-xl font-bold text-white">{taskStats.inProgress}</div>
+                              <div className="text-white/70 text-xs">In Progress</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-xl font-bold text-white">{taskStats.overdue}</div>
+                              <div className="text-white/70 text-xs">Overdue</div>
+                            </div>
+                          </div>
+                          {/* Arrow pointing down */}
+                          <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-white/20"></div>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* View Mode Toggle */}
-                  <div className="flex gap-3 items-center">
-                    <span className="text-white/90 text-sm font-semibold flex items-center gap-2">
-                      View:
-                    </span>
-                    <div className="flex gap-1 p-1 bg-white/10 rounded-xl border border-white/20">
-                      {[
-                        { key: 'grid', label: 'Grid' },
-                        { key: 'list', label: 'List' },
-                        { key: 'calendar', label: 'Calendar' }
-                      ].map(view => (
-                        <button
-                          key={view.key}
-                          onClick={() => setViewMode(view.key as any)}
-                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-105 ${
-                            viewMode === view.key
-                              ? 'bg-white/20 text-white shadow-lg'
-                              : 'text-white/70 hover:text-white hover:bg-white/10'
-                          }`}
-                        >
-                          <span className="flex items-center gap-2">
-                            <span className="hidden sm:inline">{view.label}</span>
-                          </span>
-                        </button>
-                      ))}
+                    {/* Notification Button */}
+                    <div className="relative">
+                      <GlassButton
+                        variant="secondary"
+                        size="sm"
+                        className="rounded-full hover:shadow-lg hover:shadow-white/10 transition-all duration-300 relative"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        {/* Notification Badge */}
+                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border border-white/20"></span>
+                      </GlassButton>
                     </div>
-                  </div>
 
-                  {/* Task Count */}
-                  <div className="text-white/60 text-sm">
-                    {filteredAndSortedTasks.length} of {tasks.length} tasks
+                    <GlassButton
+                      variant="secondary"
+                      size="sm"
+                      onClick={restartOnboarding}
+                      className="rounded-full hover:shadow-lg hover:shadow-white/10 transition-all duration-300"
+                    >
+                      Help
+                    </GlassButton>
+                    <AIPrioritizeButton
+                      onPrioritizeComplete={handleAIPrioritize}
+                      disabled={tasks.length === 0}
+                      className="rounded-full"
+                    />
                   </div>
                 </div>
+
+  
               </div>
             </div>
           </div>
+
+
 
         {/* Task Grid */}
         <div className="max-w-screen-xl mx-auto" data-tour="task-list">
+        {/* Filter, Sort, and View Controls */}
+          <TaskControls
+            filterStatus={filterStatus}
+            onFilterChange={setFilterStatus}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            filteredCount={filteredAndSortedTasks.length}
+            totalCount={tasks.length}
+          />
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <GlassCard className="text-center">

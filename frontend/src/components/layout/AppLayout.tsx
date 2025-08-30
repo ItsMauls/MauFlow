@@ -27,7 +27,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col lg:ml-0">
         {/* Compact Header */}
-        <div className="p-3 border-b border-white/20 bg-gradient-to-r from-white/8 to-white/4 backdrop-blur-xl">
+        {/* <div className="p-3 border-b border-white/20 bg-gradient-to-r from-white/8 to-white/4 backdrop-blur-xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <GlassButton
@@ -52,7 +52,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               <NotificationCenter />
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Content Area */}
         <div className="flex-1 overflow-auto">

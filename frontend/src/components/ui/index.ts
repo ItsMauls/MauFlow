@@ -8,3 +8,7 @@ export { UXEnhancementProvider, useUXEnhancement } from './UXEnhancementProvider
 export { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
 export { VirtualList } from './VirtualList';
 export { NotificationSystem, type Notification } from './NotificationSystem';
+export { TaskControls, type TaskControlsProps } from './TaskControls';
+export { ProjectControls, type ProjectControlsProps } from './ProjectControls';
+export { TeamModal, type TeamModalProps, type TeamMember } from './TeamModal';
+export { ActivityModal, type ActivityModalProps, type ActivityItem } from './ActivityModal';

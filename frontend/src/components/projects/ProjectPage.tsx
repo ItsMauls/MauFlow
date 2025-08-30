@@ -2,15 +2,13 @@
 
 import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { GlassContainer, GlassCard, GlassButton, ResponsiveGrid } from '../ui';
+import { GlassContainer, GlassCard, GlassButton, ResponsiveGrid, ProjectControls, TeamModal, ActivityModal, type TeamMember, type ActivityItem } from '../ui';
 import { TaskCard, type Task } from '../tasks/TaskCard';
 import { TaskListItem } from '../tasks/TaskListItem';
 import { BreadcrumbNavigation } from './BreadcrumbNavigation';
 import { ProjectLoadingState } from './ProjectLoadingState';
 import { ProjectErrorState } from './ProjectErrorState';
 import { useProject } from '@/hooks/useProject';
-import { TeamMemberSidebar } from './TeamMemberSidebar';
-import { TeamActivityFeed } from './TeamActivityFeed';
 import { BulkDelegationModal } from './BulkDelegationModal';
 import { useTeamMembers } from '@/hooks/useTeamMembers';
 import { useDelegation } from '@/hooks/useDelegation';
@@ -27,8 +25,8 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ projectId }) => {
   const [sortBy, setSortBy] = useState<'created' | 'priority' | 'dueDate' | 'ai'>('created');
   
   // Collaboration state
-  const [showTeamSidebar, setShowTeamSidebar] = useState(false);
-  const [showActivityFeed, setShowActivityFeed] = useState(false);
+  const [showTeamModal, setShowTeamModal] = useState(false);
+  const [showActivityModal, setShowActivityModal] = useState(false);
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
   const [showBulkDelegation, setShowBulkDelegation] = useState(false);
   const [delegationFilter, setDelegationFilter] = useState<'all' | 'delegated' | 'my_delegations' | 'assigned_to_me'>('all');
@@ -46,8 +44,78 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ projectId }) => {
   } = useProject(projectId);
 
   // Collaboration hooks
-  const { teamMembers, getMemberById } = useTeamMembers();
+  const { teamMembers: hookTeamMembers, getMemberById } = useTeamMembers();
   const { delegations, delegateTask, isTaskDelegated, getActiveDelegationForTask } = useDelegation();
+
+  // Mock data for modals
+  const teamMembers: TeamMember[] = [
+    {
+      id: '1',
+      name: 'John Doe',
+      email: 'john@example.com',
+      role: 'Project Manager',
+      status: 'online',
+      tasksAssigned: 5,
+      tasksCompleted: 3
+    },
+    {
+      id: '2',
+      name: 'Jane Smith',
+      email: 'jane@example.com',
+      role: 'Developer',
+      status: 'away',
+      tasksAssigned: 8,
+      tasksCompleted: 6
+    },
+    {
+      id: '3',
+      name: 'Mike Johnson',
+      email: 'mike@example.com',
+      role: 'Designer',
+      status: 'offline',
+      tasksAssigned: 3,
+      tasksCompleted: 2
+    }
+  ];
+
+  const mockActivities: ActivityItem[] = [
+    {
+      id: '1',
+      type: 'task_completed',
+      title: 'Task Completed',
+      description: 'Design wireframes task has been completed',
+      user: { id: '2', name: 'Jane Smith' },
+      timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 minutes ago
+      metadata: { taskTitle: 'Design wireframes', fromStatus: 'doing', toStatus: 'done' }
+    },
+    {
+      id: '2',
+      type: 'task_delegated',
+      title: 'Task Delegated',
+      description: 'Backend API development task has been delegated',
+      user: { id: '1', name: 'John Doe' },
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
+      metadata: { taskTitle: 'Backend API development', assigneeName: 'Mike Johnson' }
+    },
+    {
+      id: '3',
+      type: 'task_created',
+      title: 'New Task Created',
+      description: 'User authentication feature task has been created',
+      user: { id: '1', name: 'John Doe' },
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(), // 4 hours ago
+      metadata: { taskTitle: 'User authentication feature' }
+    },
+    {
+      id: '4',
+      type: 'comment_added',
+      title: 'Comment Added',
+      description: 'Added feedback on the database schema design',
+      user: { id: '3', name: 'Mike Johnson' },
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(), // 6 hours ago
+      metadata: { taskTitle: 'Database schema design' }
+    }
+  ];
 
   // Filter and sort project-specific tasks with delegation filters
   const filteredAndSortedTasks = useMemo(() => {
@@ -221,288 +289,136 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ projectId }) => {
             projectTitle={project.title}
           />
 
-          {/* Project Header */}
+          {/* Compact Project Header */}
           <div className="max-w-screen-xl mx-auto mb-8">
-            <div className="relative rounded-3xl border border-white/20 bg-gradient-to-br from-white/15 via-white/8 to-white/5 backdrop-blur-xl shadow-2xl shadow-black/20 p-8">
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-white/10 via-white/5 to-white/10 blur-sm -z-10" />
+            <div className="relative rounded-2xl border border-white/20 bg-gradient-to-br from-white/15 via-white/8 to-white/5 backdrop-blur-xl shadow-xl shadow-black/10 p-4 transform hover:scale-[1.005] transition-all duration-300">
+              {/* Subtle glowing border effect */}
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-white/10 via-white/5 to-white/10 blur-sm -z-10" />
               
-              <div className="flex flex-col md:flex-row items-start justify-between mb-6 gap-4">
-                <div>
-                  <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white via-gray-100 to-slate-100 bg-clip-text text-transparent mb-2">
-                    {project.title}
-                  </h1>
-                  <p className="text-white/80 text-lg font-light mb-2">
-                    {project.description || 'Project tasks and management'}
-                  </p>
-                  <p className="text-white/60 text-sm font-mono">
-                    {project.name}
-                  </p>
-                </div>
-                <div className="flex gap-3">
-                  <GlassButton
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => setShowTeamSidebar(!showTeamSidebar)}
-                    className="rounded-full hover:shadow-lg hover:shadow-white/10 transition-all duration-300"
-                  >
-                    {showTeamSidebar ? 'Hide Team' : 'Show Team'}
-                  </GlassButton>
-                  <GlassButton
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => setShowActivityFeed(!showActivityFeed)}
-                    className="rounded-full hover:shadow-lg hover:shadow-white/10 transition-all duration-300"
-                  >
-                    {showActivityFeed ? 'Hide Activity' : 'Show Activity'}
-                  </GlassButton>
-                  <GlassButton
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => router.push('/')}
-                    className="rounded-full hover:shadow-lg hover:shadow-white/10 transition-all duration-300"
-                  >
-                    Back to Dashboard
-                  </GlassButton>
-                </div>
-              </div>
-
-              {/* Project Statistics */}
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 md:gap-6">
-                <div className="group relative rounded-2xl bg-gradient-to-br from-white/15 to-white/5 border border-white/20 p-4 hover:scale-105 hover:shadow-xl hover:shadow-white/10 transition-all duration-300">
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="relative">
-                    <div className="text-3xl font-bold text-white mb-1">{taskStats.total}</div>
-                    <div className="text-white/70 text-sm font-medium">Total Tasks</div>
+              <div className="space-y-6">
+                {/* Title and Actions */}
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div className="text-center md:text-left">
+                    <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white via-gray-100 to-slate-100 bg-clip-text text-transparent mb-1">
+                      {project.title}
+                    </h1>
+                    <p className="text-white/70 text-sm font-light">
+                      {project.description || 'Project tasks and management'}
+                    </p>
                   </div>
-                </div>
-                
-                <div className="group relative rounded-2xl bg-gradient-to-br from-white/12 to-white/6 border border-white/25 p-4 hover:scale-105 hover:shadow-xl hover:shadow-white/15 transition-all duration-300">
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="relative">
-                    <div className="text-3xl font-bold text-white mb-1">{taskStats.completed}</div>
-                    <div className="text-white/70 text-sm font-medium">Completed</div>
-                  </div>
-                </div>
-                
-                <div className="group relative rounded-2xl bg-gradient-to-br from-white/12 to-white/6 border border-white/25 p-4 hover:scale-105 hover:shadow-xl hover:shadow-white/15 transition-all duration-300">
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="relative">
-                    <div className="text-3xl font-bold text-white mb-1">{taskStats.inProgress}</div>
-                    <div className="text-white/70 text-sm font-medium">In Progress</div>
-                  </div>
-                </div>
-                
-                <div className="group relative rounded-2xl bg-gradient-to-br from-white/12 to-white/6 border border-white/25 p-4 hover:scale-105 hover:shadow-xl hover:shadow-white/15 transition-all duration-300">
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="relative">
-                    <div className="text-3xl font-bold text-white mb-1">{taskStats.overdue}</div>
-                    <div className="text-white/70 text-sm font-medium">Overdue</div>
-                  </div>
-                </div>
-
-                {/* Delegation Statistics */}
-                <div className="group relative rounded-2xl bg-gradient-to-br from-blue-400/20 to-blue-600/10 border border-blue-400/30 p-4 hover:scale-105 hover:shadow-xl hover:shadow-blue-400/20 transition-all duration-300">
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="relative">
-                    <div className="text-3xl font-bold text-white mb-1">{taskStats.delegated}</div>
-                    <div className="text-white/70 text-sm font-medium">Delegated</div>
-                  </div>
-                </div>
-
-                <div className="group relative rounded-2xl bg-gradient-to-br from-purple-400/20 to-purple-600/10 border border-purple-400/30 p-4 hover:scale-105 hover:shadow-xl hover:shadow-purple-400/20 transition-all duration-300">
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="relative">
-                    <div className="text-3xl font-bold text-white mb-1">{taskStats.myDelegations}</div>
-                    <div className="text-white/70 text-sm font-medium">My Delegations</div>
-                  </div>
-                </div>
-
-                <div className="group relative rounded-2xl bg-gradient-to-br from-green-400/20 to-green-600/10 border border-green-400/30 p-4 hover:scale-105 hover:shadow-xl hover:shadow-green-400/20 transition-all duration-300">
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-green-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="relative">
-                    <div className="text-3xl font-bold text-white mb-1">{taskStats.assignedToMe}</div>
-                    <div className="text-white/70 text-sm font-medium">Assigned to Me</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Filters and Controls */}
-          <div className="max-w-screen-xl mx-auto mb-8">
-            <div className="rounded-2xl border border-white/20 bg-gradient-to-r from-white/15 via-white/10 to-white/15 backdrop-blur-xl shadow-xl p-6">
-              <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
-                {/* Status Filter Pills */}
-                <div className="flex flex-wrap gap-6 items-center">
-                  <div className="flex flex-wrap gap-3 items-center">
-                    <span className="text-white/90 text-sm font-semibold flex items-center gap-2">
-                      Status:
-                    </span>
-                    <div className="flex gap-2">
-                      {[
-                        { key: 'all', label: 'All', gradient: 'from-gray-400 to-gray-500' },
-                        { key: 'todo', label: 'To Do', gradient: 'from-slate-400 to-slate-500' },
-                        { key: 'doing', label: 'Doing', gradient: 'from-zinc-400 to-zinc-500' },
-                        { key: 'done', label: 'Done', gradient: 'from-gray-300 to-gray-400' }
-                      ].map(status => (
-                        <button
-                          key={status.key}
-                          onClick={() => setFilterStatus(status.key as any)}
-                          className={`group relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
-                            filterStatus === status.key
-                              ? `bg-gradient-to-r ${status.gradient} text-white shadow-lg shadow-current/25 scale-105`
-                              : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white border border-white/20'
-                          }`}
-                        >
-                          <span className="relative z-10 flex items-center gap-2">
-                            {status.label}
-                          </span>
-                          {filterStatus === status.key && (
-                            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-white/20 to-transparent" />
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Delegation Filter Pills */}
-                  <div className="flex flex-wrap gap-3 items-center">
-                    <span className="text-white/90 text-sm font-semibold flex items-center gap-2">
-                      Delegation:
-                    </span>
-                    <div className="flex gap-2">
-                      {[
-                        { key: 'all', label: 'All', gradient: 'from-gray-400 to-gray-500' },
-                        { key: 'delegated', label: 'Delegated', gradient: 'from-blue-400 to-blue-500' },
-                        { key: 'my_delegations', label: 'My Delegations', gradient: 'from-purple-400 to-purple-500' },
-                        { key: 'assigned_to_me', label: 'Assigned to Me', gradient: 'from-green-400 to-green-500' }
-                      ].map(delegation => (
-                        <button
-                          key={delegation.key}
-                          onClick={() => setDelegationFilter(delegation.key as any)}
-                          className={`group relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
-                            delegationFilter === delegation.key
-                              ? `bg-gradient-to-r ${delegation.gradient} text-white shadow-lg shadow-current/25 scale-105`
-                              : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white border border-white/20'
-                          }`}
-                        >
-                          <span className="relative z-10 flex items-center gap-2">
-                            {delegation.label}
-                          </span>
-                          {delegationFilter === delegation.key && (
-                            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-white/20 to-transparent" />
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Sort Options, View Mode, and Task Count */}
-                <div className="flex gap-6 items-center">
-                  <div className="flex gap-3 items-center">
-                    <span className="text-white/90 text-sm font-semibold flex items-center gap-2">
-                      Sort:
-                    </span>
-                    <div className="relative">
-                      <select
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value as any)}
-                        className="appearance-none bg-gradient-to-r from-white/15 to-white/10 border border-white/30 rounded-xl px-4 py-2 pr-10 text-white text-sm font-medium backdrop-blur-sm hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all duration-200"
-                      >
-                        <option value="created" className="bg-gray-800">Created Date</option>
-                        <option value="priority" className="bg-gray-800">Priority</option>
-                        <option value="dueDate" className="bg-gray-800">Due Date</option>
-                        <option value="ai" className="bg-gray-800">AI Score</option>
-                      </select>
-                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                        <svg className="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* View Mode Toggle */}
-                  <div className="flex gap-3 items-center">
-                    <span className="text-white/90 text-sm font-semibold flex items-center gap-2">
-                      View:
-                    </span>
-                    <div className="flex gap-1 p-1 bg-white/10 rounded-xl border border-white/20">
-                      {[
-                        { key: 'grid', label: 'Grid' },
-                        { key: 'list', label: 'List' }
-                      ].map(view => (
-                        <button
-                          key={view.key}
-                          onClick={() => setViewMode(view.key as any)}
-                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-105 ${
-                            viewMode === view.key
-                              ? 'bg-white/20 text-white shadow-lg'
-                              : 'text-white/70 hover:text-white hover:bg-white/10'
-                          }`}
-                        >
-                          <span className="flex items-center gap-2">
-                            <span className="hidden sm:inline">{view.label}</span>
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Bulk Actions and Task Count */}
-                  <div className="flex gap-4 items-center">
-                    {selectedTasks.length > 0 && currentUser.role.canDelegate && (
-                      <div className="flex gap-2 items-center">
-                        <GlassButton
-                          variant="primary"
-                          size="sm"
-                          onClick={() => setShowBulkDelegation(true)}
-                          className="rounded-full"
-                        >
-                          Delegate {selectedTasks.length} task{selectedTasks.length > 1 ? 's' : ''}
-                        </GlassButton>
-                        <GlassButton
-                          variant="secondary"
-                          size="sm"
-                          onClick={handleDeselectAllTasks}
-                          className="rounded-full"
-                        >
-                          Clear
-                        </GlassButton>
-                      </div>
-                    )}
-                    
-                    {selectedTasks.length === 0 && filteredAndSortedTasks.length > 0 && currentUser.role.canDelegate && (
+                  <div className="flex gap-2">
+                    {/* Information Button with Statistics */}
+                    <div className="relative group">
                       <GlassButton
                         variant="secondary"
                         size="sm"
-                        onClick={handleSelectAllTasks}
-                        className="rounded-full"
+                        className="rounded-full hover:shadow-lg hover:shadow-white/10 transition-all duration-300"
                       >
-                        Select All
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                       </GlassButton>
-                    )}
-
-                    <div className="text-white/60 text-sm">
-                      {filteredAndSortedTasks.length} of {taskStats.total} tasks
-                      {selectedTasks.length > 0 && (
-                        <span className="ml-2 text-blue-400">
-                          ({selectedTasks.length} selected)
-                        </span>
-                      )}
+                      
+                      {/* Statistics Tooltip */}
+                      <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-50">
+                        <div className="bg-gradient-to-br from-white/20 via-white/15 to-white/10 backdrop-blur-xl border border-white/30 rounded-xl p-4 shadow-2xl min-w-[320px]">
+                          <h3 className="text-white font-semibold mb-3 text-sm">Project Statistics</h3>
+                          <div className="grid grid-cols-2 gap-3 mb-4">
+                            <div className="text-center">
+                              <div className="text-xl font-bold text-white">{taskStats.total}</div>
+                              <div className="text-white/70 text-xs">Total Tasks</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-xl font-bold text-white">{taskStats.completed}</div>
+                              <div className="text-white/70 text-xs">Completed</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-xl font-bold text-white">{taskStats.inProgress}</div>
+                              <div className="text-white/70 text-xs">In Progress</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-xl font-bold text-white">{taskStats.overdue}</div>
+                              <div className="text-white/70 text-xs">Overdue</div>
+                            </div>
+                          </div>
+                          <div className="border-t border-white/20 pt-3">
+                            <h4 className="text-white/90 font-medium mb-2 text-xs">Delegation</h4>
+                            <div className="grid grid-cols-3 gap-2">
+                              <div className="text-center">
+                                <div className="text-lg font-bold text-blue-400">{taskStats.delegated}</div>
+                                <div className="text-white/70 text-xs">Delegated</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-lg font-bold text-purple-400">{taskStats.myDelegations}</div>
+                                <div className="text-white/70 text-xs">My Delegations</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-lg font-bold text-green-400">{taskStats.assignedToMe}</div>
+                                <div className="text-white/70 text-xs">Assigned to Me</div>
+                              </div>
+                            </div>
+                          </div>
+                          {/* Arrow pointing down */}
+                          <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-white/20"></div>
+                        </div>
+                      </div>
                     </div>
+
+                    <GlassButton
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setShowTeamModal(true)}
+                      className="rounded-full hover:shadow-lg hover:shadow-white/10 transition-all duration-300"
+                    >
+                      Team
+                    </GlassButton>
+                    <GlassButton
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setShowActivityModal(true)}
+                      className="rounded-full hover:shadow-lg hover:shadow-white/10 transition-all duration-300"
+                    >
+                      Activity
+                    </GlassButton>
+                    <GlassButton
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => router.push('/')}
+                      className="rounded-full hover:shadow-lg hover:shadow-white/10 transition-all duration-300"
+                    >
+                      Back
+                    </GlassButton>
                   </div>
                 </div>
+
+                {/* Project Controls */}
+                <ProjectControls
+                  filterStatus={filterStatus}
+                  onFilterChange={setFilterStatus}
+                  delegationFilter={delegationFilter}
+                  onDelegationFilterChange={setDelegationFilter}
+                  sortBy={sortBy}
+                  onSortChange={setSortBy}
+                  viewMode={viewMode}
+                  onViewModeChange={setViewMode}
+                  filteredCount={filteredAndSortedTasks.length}
+                  totalCount={taskStats.total}
+                  selectedCount={selectedTasks.length}
+                  onSelectAll={handleSelectAllTasks}
+                  onDeselectAll={handleDeselectAllTasks}
+                  onBulkDelegate={() => setShowBulkDelegation(true)}
+                  canDelegate={currentUser.role.canDelegate}
+                />
               </div>
             </div>
           </div>
 
-          {/* Main Content Area with Sidebar */}
+
+
+          {/* Main Content Area */}
           <div className="max-w-screen-xl mx-auto">
-            <div className="flex gap-6">
-              {/* Task Grid */}
-              <div className={`flex-1 ${showTeamSidebar ? 'lg:pr-6' : ''}`}>
+            {/* Task Grid */}
+            <div>
                 {filteredAndSortedTasks.length === 0 ? (
                   <div className="flex items-center justify-center py-16">
                     <div className="text-center max-w-md mx-auto">
@@ -526,7 +442,7 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ projectId }) => {
                     </div>
                   </div>
                 ) : viewMode === 'grid' ? (
-                  <ResponsiveGrid columns={{ mobile: 1, tablet: 2, desktop: showTeamSidebar ? 2 : 3 }} gap="md">
+                  <ResponsiveGrid columns={{ mobile: 1, tablet: 2, desktop: 3 }} gap="md">
                     {filteredAndSortedTasks.map((task, index) => (
                       <div key={task.id} className="stagger-item relative" style={{ animationDelay: `${index * 0.1}s` }}>
                         {currentUser.role.canDelegate && (
@@ -573,26 +489,7 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ projectId }) => {
                 )}
               </div>
 
-              {/* Team Member Sidebar */}
-              {showTeamSidebar && (
-                <div className="hidden lg:block w-80 flex-shrink-0">
-                  <TeamMemberSidebar 
-                    projectId={projectId}
-                    onMemberSelect={(memberId) => {
-                      // Handle member selection for quick delegation
-                      console.log('Selected member:', memberId);
-                    }}
-                  />
-                </div>
-              )}
             </div>
-
-            {/* Team Activity Feed */}
-            {showActivityFeed && (
-              <div className="mt-8">
-                <TeamActivityFeed projectId={projectId} />
-              </div>
-            )}
           </div>
 
           {/* Bulk Delegation Modal */}
@@ -604,8 +501,27 @@ export const ProjectPage: React.FC<ProjectPageProps> = ({ projectId }) => {
               onClose={() => setShowBulkDelegation(false)}
             />
           )}
-        </div>
-      </GlassContainer>
-    </div>
+
+          {/* Team Modal */}
+          <TeamModal
+            isOpen={showTeamModal}
+            onClose={() => setShowTeamModal(false)}
+            projectId={projectId}
+            teamMembers={teamMembers}
+            onMemberSelect={(memberId) => {
+              console.log('Selected member:', memberId);
+              // Handle member selection for quick delegation
+            }}
+          />
+
+          {/* Activity Modal */}
+          <ActivityModal
+            isOpen={showActivityModal}
+            onClose={() => setShowActivityModal(false)}
+            projectId={projectId}
+            activities={mockActivities}
+          />
+        </GlassContainer>
+      </div>
   );
 };
