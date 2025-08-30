@@ -2,6 +2,8 @@ package http
 
 import (
 	"backend/internal/interface/http/middleware"
+	"backend/internal/interface/http/prioritize"
+	"backend/internal/interface/http/task"
 
 	"github.com/gofiber/fiber/v2"
 )
