@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// Build registers API routes using the provided dependencies.
 func Build(app *fiber.App, deps Dependencies) {
 	api := app.Group("/api", middleware.AuthMiddleware(deps.Auth()))
 

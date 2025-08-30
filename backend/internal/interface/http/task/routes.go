@@ -2,22 +2,11 @@ package task
 
 import "github.com/gofiber/fiber/v2"
 
-// RegisterRoutes registers HTTP routes for task operations.
-func RegisterRoutes(r fiber.Router, svc interface{}) {
-	// Example handlers; replace with real implementations once available.
-	r.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("list tasks")
-	})
+// Service handles task related operations.
+type Service struct{}
 
-	r.Post("/", func(c *fiber.Ctx) error {
-		return c.SendString("create task")
-	})
+// RegisterRoutes wires task routes to the provided router.
+func RegisterRoutes(r fiber.Router, svc *Service) {
+	// TODO: implement task handlers
 
-	r.Put("/:id", func(c *fiber.Ctx) error {
-		return c.SendString("update task")
-	})
-
-	r.Delete("/:id", func(c *fiber.Ctx) error {
-		return c.SendString("delete task")
-	})
 }
