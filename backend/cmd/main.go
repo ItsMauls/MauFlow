@@ -1,8 +1,10 @@
-package main	
+package main
 
 import (
-    "github.com/gofiber/fiber/v2"
-    "github.com/gofiber/fiber/v2/middleware/cors"
+	"log"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func main() {
@@ -13,5 +15,5 @@ func main() {
 		return c.SendString("Hello, Fiber!")
 	})
 
-	app.Listen(":3001")
+	log.Fatal(app.Listen(":3001"))
 }
