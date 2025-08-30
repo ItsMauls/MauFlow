@@ -1,11 +1,12 @@
 package prioritize
 
-import "github.com/gofiber/fiber/v2"
+import (
+    appprioritize "backend/internal/application/prioritize"
 
-// Service handles prioritization operations.
-type Service struct{}
+    "github.com/gofiber/fiber/v2"
+)
 
 // RegisterRoutes wires prioritization routes to the provided router.
-func RegisterRoutes(r fiber.Router, svc *Service) {
-	// TODO: implement prioritize handlers
+func RegisterRoutes(r fiber.Router, svc *appprioritize.Service) {
+    r.Get("/ping", func(c *fiber.Ctx) error { return c.SendString("pong") })
 }
